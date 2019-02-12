@@ -30,13 +30,14 @@ void drop_ppm_image(const std::string filename, const std::vector<uint32_t> &ima
 }
 
 void draw_rectangle(std::vector<uint32_t> &img, 
-const size_t img_w, 
-	const size_t img_h, 
-	const size_t x, 
-	const size_t y, 
-	const size_t w, 
-	const size_t h, 
-	const uint32_t color) 
+const size_t img_w,		// Размер окна в ширину
+const size_t img_h,		// Размер окна в длину
+const size_t x,			// Координаты начала отрисовки прямоугольника
+const size_t y,			// Координаты начала отрисовки прямоугольника
+const size_t w,			// Размер прямоугольника	
+const size_t h,			// Размер прямоугольника
+const uint32_t color	// Цвет объекта
+) 
 {
 	assert(img.size() == img_w * img_h);
 	for (size_t i = 0; i < w; i++) {
@@ -57,6 +58,7 @@ int main() {
 
 	const size_t map_w = 16; // map width
 	const size_t map_h = 16; // map height
+	//Map
 	const char map[] =	
 	"0000222222220000"\
 	"1              0"\
@@ -79,10 +81,10 @@ int main() {
 
 	float player_x = 3.456; // player x position
 	float player_y = 2.345; // player y position
-	float player_a = 1.523; // player view direction
-	const float fov = M_PI / 3.; // field of view
+	float player_a = 1.523; // player view direction //радианы
+	const float fov = M_PI / 3.; // field of view //Мы видем 3-ть от 180 градусов обзора
 
-
+	// Отрисовка карты
 	const size_t rect_w = win_w / (map_w * 2);
 	const size_t rect_h = win_h / map_h;
 	for (size_t j = 0; j < map_h; j++) { // draw the map
@@ -94,21 +96,28 @@ int main() {
 		}
 	}
 
+	drop_ppm_image("./out.ppm", framebuffer, win_w, win_h);
+
 	for (size_t i = 0; i < win_w / 2; i++) { // draw the visibility cone AND the "3D" view
+		// Мы видим от центра угла обзора игрока по +-половинки
 		float angle = player_a - fov / 2 + fov * i / float(win_w / 2);
+
 		for (float t = 0; t < 20; t += .05) {
+			// 20 - длина что ли трасировки лучей
+			// Таким образом определяем длину трасировки нашего зрения
 			float cx = player_x + t * cos(angle);
 			float cy = player_y + t * sin(angle);
 			
-
+			// Масшатибурем относитель наших обеъктов на карте
 			size_t pix_x = cx * rect_w;
 			size_t pix_y = cy * rect_h;
 			framebuffer[pix_x + pix_y * win_w] = pack_color(160, 160, 160); // this draws the visibility cone
 
+			// Отрисовка наших текстур (столбиков) на втором экране
 			if (map[int(cx) + int(cy)*map_w] != ' ') { // our ray touches a wall, so draw the vertical column to create an illusion of 3D
 				size_t column_height = win_h / t;
 				draw_rectangle(framebuffer, win_w, win_h, win_w / 2 + i, win_h / 2 - column_height / 2, 1, column_height, pack_color(0, 255, 255));
-				drop_ppm_image("./out.ppm", framebuffer, win_w, win_h);
+				//drop_ppm_image("./out.ppm", framebuffer, win_w, win_h);
 				break;
 			}
 		}
