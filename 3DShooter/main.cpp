@@ -29,7 +29,15 @@ void drop_ppm_image(const std::string filename, const std::vector<uint32_t> &ima
 	ofs.close();
 }
 
-void draw_rectangle(std::vector<uint32_t> &img, const size_t img_w, const size_t img_h, const size_t x, const size_t y, const size_t w, const size_t h, const uint32_t color) {
+void draw_rectangle(std::vector<uint32_t> &img, 
+const size_t img_w, 
+	const size_t img_h, 
+	const size_t x, 
+	const size_t y, 
+	const size_t w, 
+	const size_t h, 
+	const uint32_t color) 
+{
 	assert(img.size() == img_w * img_h);
 	for (size_t i = 0; i < w; i++) {
 		for (size_t j = 0; j < h; j++) {
@@ -52,19 +60,19 @@ int main() {
 	const char map[] =	
 	"0000222222220000"\
 	"1              0"\
-	"1      11111   0"\
+	"1   111111     0"\
 	"1     0        0"\
-	"0     0  1110000"\
+	"0     0    10000"\
 	"0     3        0"\
-	"0   10000      0"\
+	"0   100 1      0"\
 	"0   0   11100  0"\
 	"0   0   0      0"\
 	"0   0   1  00000"\
 	"0       1      0"\
-	"2       1      0"\
+	"2              0"\
 	"0       0      0"\
 	"0 0000000      0"\
-	"0              0"\
+	"0       1      0"\
 	"0002222222200000"; // our game map
 
 	assert(sizeof(map) == map_w * map_h + 1); // +1 for the null terminated string
@@ -100,6 +108,7 @@ int main() {
 			if (map[int(cx) + int(cy)*map_w] != ' ') { // our ray touches a wall, so draw the vertical column to create an illusion of 3D
 				size_t column_height = win_h / t;
 				draw_rectangle(framebuffer, win_w, win_h, win_w / 2 + i, win_h / 2 - column_height / 2, 1, column_height, pack_color(0, 255, 255));
+				drop_ppm_image("./out.ppm", framebuffer, win_w, win_h);
 				break;
 			}
 		}
